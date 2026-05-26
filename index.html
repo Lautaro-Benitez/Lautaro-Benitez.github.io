@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lautaro N. Benitez — Mechatronics Engineer & Full Stack Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@200;300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #05060a;
+    --bg-soft: #0b0d16;
+    --panel: #0f1220;
+    --ink: #f4f6ff;
+    --ink-dim: #9aa3c7;
+    --ink-faint: #5a6286;
+    --accent: #4af0c8;
+    --accent-2: #6b8cff;
+    --accent-warm: #ff8a5c;
+    --line: rgba(255,255,255,0.07);
+    --glow: 0 0 40px rgba(74,240,200,0.35);
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent); color: #04140f; }
+
+  /* ---------- Scrollbar ---------- */
+  ::-webkit-scrollbar { width: 9px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #1d2238; border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent-2); }
+
+  /* ---------- 3D canvas backdrop ---------- */
+  #bg-canvas {
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+  }
+  .grain {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    opacity: 0.04; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 0%, transparent 40%, rgba(0,0,0,0.7) 100%);
+  }
+  main { position: relative; z-index: 2; }
+
+  /* ---------- Nav ---------- */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px clamp(20px, 5vw, 70px);
+    backdrop-filter: blur(2px);
+    transition: background .4s ease, padding .4s ease, border-color .4s ease;
+    border-bottom: 1px solid transparent;
+  }
+  nav.scrolled {
+    background: rgba(5,6,10,0.82);
+    backdrop-filter: blur(18px);
+    padding-top: 14px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 800; font-size: 1.05rem;
+    letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px;
+  }
+  .logo .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent); box-shadow: var(--glow);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.6} }
+  .nav-links { display: flex; gap: 34px; align-items: center; }
+  .nav-links a {
+    color: var(--ink-dim); text-decoration: none; font-size: 0.86rem;
+    font-weight: 500; letter-spacing: 0.02em; transition: color .25s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 1.5px;
+    background: var(--accent); transition: width .3s ease;
+  }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a:hover::after { width: 100%; }
+  .lang-toggle {
+    display: flex; border: 1px solid var(--line); border-radius: 30px;
+    overflow: hidden; font-family: var(--font-mono); font-size: 0.72rem;
+  }
+  .lang-toggle button {
+    background: transparent; color: var(--ink-faint); border: none;
+    padding: 7px 13px; cursor: pointer; transition: all .25s; font-family: inherit;
+  }
+  .lang-toggle button.active { background: var(--accent); color: #04140f; font-weight: 600; }
+  .nav-github {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid var(--line); color: var(--ink-dim);
+    transition: all .3s;
+  }
+  .nav-github svg { width: 18px; height: 18px; }
+  .nav-github:hover {
+    color: var(--accent); border-color: var(--accent);
+    box-shadow: var(--glow); transform: translateY(-2px);
+  }
+  .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background:none; border:none; }
+  .burger span { width: 24px; height: 2px; background: var(--ink); transition: .3s; }
+
+  /* ---------- Hero ---------- */
+  header {
+    min-height: 100vh; display: flex; flex-direction: column;
+    justify-content: center; padding: 120px clamp(20px, 5vw, 70px) 60px;
+    position: relative;
+  }
+  .hero-tag {
+    font-family: var(--font-mono); font-size: 0.78rem; color: var(--accent);
+    letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 26px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .hero-tag::before { content:''; width: 38px; height: 1px; background: var(--accent); }
+  h1.hero-title {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(2.8rem, 8.5vw, 7.3rem); line-height: 0.98;
+    letter-spacing: -0.04em; margin-bottom: 28px;
+  }
+  h1.hero-title .line { display: block; overflow: hidden; }
+  h1.hero-title .line span { display: block; }
+  .gradient-text {
+    background: linear-gradient(110deg, var(--accent) 0%, var(--accent-2) 55%, var(--accent-warm) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero-sub {
+    max-width: 620px; font-size: clamp(1rem, 1.7vw, 1.22rem);
+    color: var(--ink-dim); margin-bottom: 38px; font-weight: 300;
+  }
+  .hero-sub strong { color: var(--ink); font-weight: 600; }
+  .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+  .btn-primary {
+    background: var(--accent); color: #04140f; border: none;
+    padding: 15px 30px; border-radius: 40px; font-family: var(--font-display);
+    font-weight: 700; font-size: 0.92rem; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: transform .3s;
+    position: relative; overflow: hidden; isolation: isolate;
+  }
+  .btn-primary::before {
+    content:''; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%);
+    transform: translateX(-120%);
+  }
+  .btn-primary:hover::before { animation: shimmer 0.95s ease; }
+  @keyframes shimmer { to { transform: translateX(120%); } }
+  .btn-primary:hover { transform: translateY(-3px); }
+  .btn-secondary {
+    background: var(--accent-2); color: #060814; border: none;
+    padding: 15px 30px; border-radius: 40px; font-family: var(--font-display);
+    font-weight: 700; font-size: 0.92rem; cursor: pointer; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: transform .3s;
+    position: relative; overflow: hidden; isolation: isolate;
+  }
+  .btn-secondary::before {
+    content:''; position: absolute; inset: 0; z-index: -1;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.5) 50%, transparent 70%);
+    transform: translateX(-120%);
+  }
+  .btn-secondary:hover::before { animation: shimmer 0.95s ease; }
+  .btn-secondary:hover { transform: translateY(-3px); }
+  .btn-ghost {
+    background: transparent; color: var(--ink); border: 1px solid var(--line);
+    padding: 15px 28px; border-radius: 40px; font-family: var(--font-display);
+    font-weight: 600; font-size: 0.92rem; cursor: pointer; text-decoration: none;
+    transition: border-color .3s, color .3s;
+    display: inline-flex; align-items: center; gap: 10px;
+    position: relative; overflow: hidden;
+  }
+  .btn-ghost::before {
+    content:''; position: absolute; inset: 0;
+    background: linear-gradient(110deg, transparent 35%, rgba(107,140,255,0.18) 50%, transparent 65%);
+    transform: translateX(-120%);
+  }
+  .btn-ghost:hover::before { animation: shimmer 1s ease; }
+  .btn-ghost:hover { border-color: var(--accent-2); color: var(--accent-2); }
+  .work-cta { display: flex; justify-content: center; margin-top: 40px; }
+  .hero-stats {
+    margin-top: clamp(48px, 7vh, 90px);
+    display: flex; gap: clamp(20px,4vw,60px); flex-wrap: wrap;
+    padding-top: 26px; border-top: 1px solid var(--line);
+  }
+  .stat .num {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.5rem, 3vw, 2.4rem); letter-spacing: -0.02em;
+  }
+  .stat .num .gradient-text { display:inline; }
+  .stat .label {
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .scroll-hint {
+    position: absolute; bottom: 30px; right: clamp(20px,5vw,70px);
+    font-family: var(--font-mono); font-size: 0.66rem; color: var(--ink-faint);
+    writing-mode: vertical-rl; letter-spacing: 0.2em; display: flex;
+    align-items: center; gap: 10px;
+  }
+
+  /* ---------- Section shells ---------- */
+  section { padding: clamp(80px, 12vh, 160px) clamp(20px, 5vw, 70px); position: relative; }
+  .sec-head { margin-bottom: 64px; max-width: 760px; }
+  .sec-kicker {
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent);
+    letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sec-kicker .idx { color: var(--ink-faint); }
+  .sec-title {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(2rem, 4.6vw, 3.6rem); letter-spacing: -0.03em;
+    line-height: 1.04;
+    background: linear-gradient(110deg,
+      var(--ink) 0%, var(--ink) 38%,
+      #ffffff 48%, var(--accent) 52%,
+      var(--ink) 62%, var(--ink) 100%);
+    background-size: 280% 100%;
+    background-position: 100% 0;
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+    transition: background-position 1.5s cubic-bezier(.2,.7,.2,1);
+  }
+  .reveal.in .sec-title { background-position: 0% 0; }
+  .sec-desc { color: var(--ink-dim); margin-top: 18px; font-weight: 300; font-size: 1.05rem; }
+
+  /* ---------- About ---------- */
+  .about-grid {
+    display: grid; grid-template-columns: 0.8fr 1.3fr 0.9fr; gap: 48px; align-items: start;
+  }
+  .about-text p { color: var(--ink-dim); font-size: 1.05rem; margin-bottom: 20px; font-weight: 300; }
+  .about-text p strong { color: var(--ink); font-weight: 600; }
+  /* ---- portrait ---- */
+  .about-photo {
+    position: relative; border-radius: 22px; overflow: hidden;
+    aspect-ratio: 3 / 4;
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgba(74,240,200,0.16), transparent 60%),
+      linear-gradient(165deg, var(--panel), var(--bg-soft));
+    border: 1px solid var(--line);
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .about-photo img {
+    width: 100%; height: 100%; object-fit: contain; object-position: bottom center;
+    display: block;
+    filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45));
+  }
+  /* placeholder shown until the user drops in their PNG */
+  .about-photo .photo-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; text-align: center; padding: 24px;
+  }
+  .about-photo .photo-placeholder svg { width: 64px; height: 64px; opacity: 0.5; }
+  .about-photo .photo-placeholder span {
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-faint);
+    letter-spacing: 0.04em; line-height: 1.5;
+  }
+  .about-photo::after {
+    content:''; position: absolute; inset: 0; pointer-events: none;
+    border-radius: 22px;
+    box-shadow: inset 0 -50px 50px -45px rgba(5,6,10,0.7);
+  }
+  .about-card {
+    position: relative; border-radius: 22px; padding: 1px;
+    overflow: hidden; isolation: isolate;
+  }
+  /* rotating conic gradient border */
+  .about-card::after {
+    content:''; position: absolute; z-index: -2;
+    inset: -150%;
+    background: conic-gradient(from 0deg,
+      transparent 0deg, var(--accent) 60deg,
+      transparent 130deg, transparent 230deg,
+      var(--accent-2) 300deg, transparent 360deg);
+    animation: spin-border 9s linear infinite;
+  }
+  @keyframes spin-border { to { transform: rotate(360deg); } }
+  .about-card-inner {
+    position: relative; z-index: 1; border-radius: 21px;
+    background: linear-gradient(160deg, var(--panel), var(--bg-soft));
+    padding: 34px; overflow: hidden;
+  }
+  .about-card-inner::before {
+    content:''; position: absolute; top:-50%; right:-30%;
+    width: 280px; height: 280px; pointer-events: none;
+    background: radial-gradient(circle, rgba(107,140,255,0.22), transparent 70%);
+  }
+  .about-card h3 {
+    font-family: var(--font-display); font-size: 1.05rem; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px; position: relative;
+  }
+  .about-card h3::before { content:''; width: 7px; height: 7px; background: var(--accent); border-radius:50%; box-shadow: var(--glow); }
+  .info-row {
+    display: flex; justify-content: space-between; padding: 13px 0;
+    border-bottom: 1px solid var(--line); font-size: 0.9rem;
+    position: relative;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .k { color: var(--ink-faint); font-family: var(--font-mono); font-size: 0.78rem; }
+  .info-row .v { color: var(--ink); text-align: right; font-weight: 500; }
+
+  /* ---------- Marquee ---------- */
+  .marquee {
+    overflow: hidden; padding: 26px 0; border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line); white-space: nowrap;
+  }
+  .marquee-track {
+    display: inline-flex; gap: 44px; animation: scroll-x 38s linear infinite;
+  }
+  @keyframes scroll-x { to { transform: translateX(-50%); } }
+  .marquee-item {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(1.2rem, 2.4vw, 2rem); color: var(--ink-faint);
+    display: inline-flex; align-items: center; gap: 44px; letter-spacing: -0.02em;
+  }
+  .marquee-item::after { content:'◆'; color: var(--accent); font-size: 0.7em; }
+  .marquee:hover .marquee-track { animation-play-state: paused; }
+
+  /* ---------- Skills ---------- */
+  .skill-domain {
+    display: flex; align-items: center; gap: 20px; margin-bottom: 24px;
+  }
+  .domain-label {
+    font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink);
+    letter-spacing: 0.14em; text-transform: uppercase; white-space: nowrap;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .domain-label::before {
+    content:''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); box-shadow: var(--glow);
+  }
+  .domain-rule {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--line), transparent);
+  }
+  .skills-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+    perspective: 1100px;
+  }
+  @media (max-width: 1080px) { .skills-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 620px)  { .skills-grid { grid-template-columns: 1fr; } }
+  .skill-card {
+    border-radius: 18px; position: relative;
+    transform-style: preserve-3d;
+    transform:
+      rotateX(var(--rx,0deg))
+      rotateY(var(--ry,0deg))
+      translateY(var(--ty,0px));
+    transition: transform .5s cubic-bezier(.2,.8,.2,1);
+    will-change: transform;
+  }
+  .skill-card.tilting { transition: none; }
+  .skill-inner {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+    padding: 28px; position: relative; overflow: hidden;
+    transition: border-color .35s, box-shadow .35s;
+    height: 100%;
+  }
+  /* spotlight that follows the cursor (vars set via JS) */
+  .skill-inner::before {
+    content:''; position: absolute; inset: 0; pointer-events: none;
+    border-radius: inherit; opacity: 0; transition: opacity .35s;
+    background: radial-gradient(360px circle at var(--mx,50%) var(--my,50%),
+      rgba(74,240,200,0.14), transparent 42%);
+  }
+  .skill-card:hover .skill-inner::before { opacity: 1; }
+  .skill-inner > * { position: relative; z-index: 1; }
+  .skill-card:hover .skill-inner {
+    border-color: rgba(74,240,200,0.4); box-shadow: 0 0 40px rgba(74,240,200,0.1);
+  }
+  .skill-inner::after {
+    content:''; position: absolute; bottom: 0; left: 0; height: 2px; width: 0;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    transition: width .4s ease; z-index: 2;
+  }
+  .skill-card:hover .skill-inner::after { width: 100%; }
+  .skill-icon {
+    margin-bottom: 18px;
+    display: flex; align-items: center;
+  }
+  .skill-icon svg {
+    width: 30px; height: 30px; stroke: var(--accent);
+    transition: filter .4s;
+  }
+  .skill-card:hover .skill-icon svg {
+    filter: drop-shadow(0 0 8px rgba(74,240,200,0.45));
+  }
+  .skill-card h4 {
+    font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 10px; font-weight: 600;
+  }
+  .skill-p { color: var(--ink-dim); font-size: 0.88rem; font-weight: 300; }
+  .skill-card .tags {
+    display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px;
+  }
+  .skill-card .tags span {
+    font-family: var(--font-mono); font-size: 0.69rem; color: var(--ink-dim);
+    background: var(--bg-soft); border: 1px solid var(--line);
+    padding: 4px 9px; border-radius: 6px;
+  }
+
+  /* ---------- Projects ---------- */
+  .projects { display: flex; flex-direction: column; gap: 26px; }
+  .project {
+    display: grid; grid-template-columns: 70px 1fr 280px; gap: 30px;
+    align-items: start; padding: 34px; border: 1px solid var(--line);
+    border-radius: 22px; background: linear-gradient(160deg, var(--panel), rgba(11,13,22,0.4));
+    transition: border-color .4s, transform .4s, background .4s, box-shadow .4s;
+    position: relative; overflow: hidden;
+  }
+  .project::before {
+    content:''; position: absolute; left:0; top:0; bottom:0; width: 3px;
+    background: linear-gradient(var(--accent), var(--accent-2));
+    transform: scaleY(0); transform-origin: top; transition: transform .45s ease;
+    z-index: 2;
+  }
+  /* cursor-tracking spotlight */
+  .project::after {
+    content:''; position: absolute; inset: 0; pointer-events: none;
+    opacity: 0; transition: opacity .4s; border-radius: inherit;
+    background: radial-gradient(520px circle at var(--mx,50%) var(--my,50%),
+      rgba(107,140,255,0.12), transparent 45%);
+  }
+  .project:hover::after { opacity: 1; }
+  .project > * { position: relative; z-index: 1; }
+  .project:hover {
+    transform: translateX(8px); border-color: rgba(107,140,255,0.35);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+  }
+  .project:hover::before { transform: scaleY(1); }
+  .project .pmedia {
+    display: flex; flex-direction: column; gap: 14px; align-items: flex-end;
+  }
+  .project .pshot {
+    width: 100%; aspect-ratio: 16 / 10; border-radius: 12px;
+    overflow: hidden; border: 1px solid var(--line);
+    background:
+      radial-gradient(110% 90% at 30% 0%, rgba(107,140,255,0.14), transparent 60%),
+      linear-gradient(150deg, var(--bg-soft), #0a0c15);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    transition: border-color .4s;
+  }
+  .project:hover .pshot { border-color: rgba(107,140,255,0.4); }
+  .project .pshot img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .project .shot-placeholder {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center; padding: 16px;
+  }
+  .project .shot-placeholder svg { width: 34px; height: 34px; opacity: 0.45; }
+  .project .shot-placeholder span {
+    font-family: var(--font-mono); font-size: 0.62rem; color: var(--ink-faint);
+    letter-spacing: 0.04em; line-height: 1.5;
+  }
+  .project .pnum {
+    font-family: var(--font-display); font-weight: 800; font-size: 2.2rem;
+    -webkit-text-stroke: 1px var(--ink-faint);
+    color: transparent;
+    transition: color .45s ease, -webkit-text-stroke-color .45s ease;
+  }
+  .project:hover .pnum {
+    -webkit-text-stroke-color: transparent;
+    background: linear-gradient(var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent;
+  }
+  .project .pbody h4 {
+    font-family: var(--font-display); font-size: 1.45rem; font-weight: 700;
+    margin-bottom: 8px; letter-spacing: -0.02em;
+  }
+  .project .ptype {
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;
+  }
+  .project .pbody p { color: var(--ink-dim); font-size: 0.96rem; font-weight: 300; margin-bottom: 16px; }
+  .project .pstack { display: flex; flex-wrap: wrap; gap: 8px; }
+  .project .pstack span {
+    font-family: var(--font-mono); font-size: 0.7rem; color: var(--ink-dim);
+    background: var(--bg-soft); padding: 5px 10px; border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+  .project .plinks { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .project .plink {
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink);
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--line); padding: 8px 14px; border-radius: 8px;
+    transition: border-color .3s, color .3s, background .3s;
+  }
+  .project .plink svg { width: 14px; height: 14px; }
+  .project .plink:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(74,240,200,0.06);
+  }
+  .project .plink.disabled {
+    color: var(--ink-faint); cursor: not-allowed; border-style: dashed;
+  }
+  .project .plink.disabled:hover { border-color: var(--line); color: var(--ink-faint); background: transparent; }
+  .project .pstatus {
+    font-family: var(--font-mono); font-size: 0.72rem; white-space: nowrap;
+    display: flex; align-items: center; gap: 8px; color: var(--ink-dim);
+  }
+  .project .pstatus .live {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+    box-shadow: var(--glow); animation: pulse 2s infinite;
+  }
+
+  /* ---------- Timeline ---------- */
+  .timeline { position: relative; padding-left: 36px; }
+  .timeline::before {
+    content:''; position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 2px; background: linear-gradient(var(--accent), var(--accent-2), transparent);
+  }
+  .tl-item { position: relative; padding-bottom: 48px; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content:''; position: absolute; left: -36px; top: 6px;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--accent);
+  }
+  .tl-item .tl-date {
+    font-family: var(--font-mono); font-size: 0.76rem; color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .tl-item h4 { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; }
+  .tl-item .tl-org { color: var(--ink-dim); font-size: 0.92rem; margin: 4px 0 14px; }
+  .tl-item ul { list-style: none; }
+  .tl-item ul li {
+    color: var(--ink-dim); font-size: 0.94rem; font-weight: 300;
+    padding-left: 20px; position: relative; margin-bottom: 8px;
+  }
+  .tl-item ul li::before {
+    content:'▸'; position: absolute; left: 0; color: var(--accent-2);
+  }
+
+  /* ---------- Contact ---------- */
+  .contact {
+    text-align: center; padding-bottom: 60px;
+  }
+  .contact .big {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(2.4rem, 8vw, 6rem); letter-spacing: -0.04em;
+    line-height: 1; margin-bottom: 30px;
+  }
+  .contact-links {
+    display: flex; gap: 18px; justify-content: center; flex-wrap: wrap;
+    margin-top: 36px;
+  }
+  .contact-links a svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .contact-links a {
+    font-family: var(--font-mono); font-size: 0.88rem; color: var(--ink);
+    text-decoration: none; border: 1px solid var(--line); padding: 14px 24px;
+    border-radius: 40px; transition: all .3s; display: flex; align-items: center; gap: 10px;
+  }
+  .contact-links a:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-3px); }
+
+  footer {
+    padding: 36px clamp(20px,5vw,70px); border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-faint);
+  }
+
+  /* ---------- Reveal animation ---------- */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity .9s cubic-bezier(.2,.8,.2,1), transform .9s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal-d1 { transition-delay: .1s; } .reveal-d2 { transition-delay: .2s; }
+  .reveal-d3 { transition-delay: .3s; } .reveal-d4 { transition-delay: .4s; }
+
+  .hero-anim { opacity: 0; transform: translateY(110%); }
+  .hero-anim.play { animation: rise 1s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes rise { to { opacity:1; transform: translateY(0); } }
+
+  /* ---------- Mobile menu (hidden on desktop) ---------- */
+  .mobile-menu {
+    display: none;
+    position: fixed; inset: 0; z-index: 49; background: rgba(5,6,10,0.98);
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 30px;
+  }
+  .mobile-menu a {
+    font-family: var(--font-display); font-size: 1.6rem; color: var(--ink);
+    text-decoration: none; font-weight: 600;
+  }
+  .mobile-menu .lang-toggle { transform: scale(1.2); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .about-grid { grid-template-columns: 1fr 1fr; }
+    .about-photo { grid-row: 1 / 3; }
+  }
+  @media (max-width: 900px) {
+    .nav-links { display: none; }
+    .burger { display: flex; }
+    .about-grid { grid-template-columns: 1fr; }
+    .about-photo { grid-row: auto; max-width: 360px; }
+    .project { grid-template-columns: 1fr; gap: 18px; }
+    .project .pnum { font-size: 1.6rem; }
+    .project .pmedia { align-items: stretch; }
+    .project .pshot { max-width: 100%; }
+    .hero-stats { gap: 22px; }
+    .scroll-hint { display: none; }
+    .mobile-menu.open { display: flex; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<nav id="nav">
+  <div class="logo"><span class="dot"></span> LB<span style="color:var(--accent)">.</span></div>
+  <div class="nav-links">
+    <a href="#about" data-en="About" data-es="Perfil">About</a>
+    <a href="#skills" data-en="Skills" data-es="Skills">Skills</a>
+    <a href="#work" data-en="Work" data-es="Proyectos">Work</a>
+    <a href="#experience" data-en="Experience" data-es="Experiencia">Experience</a>
+    <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
+  </div>
+  <div style="display:flex;gap:14px;align-items:center;">
+    <div class="lang-toggle">
+      <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="lang-es" onclick="setLang('es')">ES</button>
+    </div>
+    <a href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener" class="nav-github" aria-label="GitHub">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+    </a>
+    <button class="burger" id="burger" aria-label="menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about" data-en="About" data-es="Perfil">About</a>
+  <a href="#skills" data-en="Skills" data-es="Skills">Skills</a>
+  <a href="#work" data-en="Work" data-es="Proyectos">Work</a>
+  <a href="#experience" data-en="Experience" data-es="Experiencia">Experience</a>
+  <a href="#contact" data-en="Contact" data-es="Contacto">Contact</a>
+</div>
+
+<main>
+
+<!-- ===================== HERO ===================== -->
+<header id="top">
+  <div class="hero-tag" data-en="Mechatronics Engineer · Full Stack Developer" data-es="Ingeniero Mecatrónico · Full Stack Developer">Mechatronics Engineer · Full Stack Developer</div>
+  <h1 class="hero-title">
+    <span class="line"><span class="hero-anim" style="animation-delay:.1s">Lautaro N.</span></span>
+    <span class="line"><span class="hero-anim gradient-text" style="animation-delay:.25s">Benitez</span></span>
+  </h1>
+  <p class="hero-sub hero-anim" style="animation-delay:.5s"
+     data-en="Mechatronics Engineer and Full Stack Developer. I take products <strong>end to end</strong> — whether that's <strong>custom firmware running on bare metal</strong> or a multitenant SaaS in the cloud. Two disciplines, one integral profile."
+     data-es="Ingeniero Mecatrónico y Desarrollador Full Stack. Llevo productos <strong>de punta a punta</strong> — ya sea <strong>firmware propio corriendo sobre bare metal</strong> o un SaaS multitenant en la nube. Dos disciplinas, un perfil integral.">
+  </p>
+  <div class="hero-actions hero-anim" style="animation-delay:.7s">
+    <a href="#work" class="btn-primary" data-en="View projects" data-es="Ver proyectos">View projects <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M7 17 17 7M9 7h8v8"/></svg></a>
+    <a href="#contact" class="btn-secondary" data-en="Get in touch" data-es="Contactar">Get in touch</a>
+    <a id="cv-download" class="btn-ghost"
+       href="assets/CV_Engineer_LautaroBenitez_EN.pdf" download>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>
+      <span data-en="Download CV" data-es="Descargar CV">Download CV</span>
+    </a>
+  </div>
+  <!--
+    CV: los 4 PDFs deben ir en la carpeta /assets junto al index.html.
+    El botón sirve el CV según el idioma activo (ver setLang en el script).
+  -->
+  <div class="hero-stats">
+    <div class="stat hero-anim" style="animation-delay:.85s">
+      <div class="num"><span class="gradient-text count" data-count="5" data-suffix="+">0+</span></div>
+      <div class="label" data-en="Years building" data-es="Años construyendo">Years building</div>
+    </div>
+    <div class="stat hero-anim" style="animation-delay:.95s">
+      <div class="num"><span class="gradient-text">SW+HW</span></div>
+      <div class="label" data-en="Software & Hardware" data-es="Software & Hardware">Software & Hardware</div>
+    </div>
+    <div class="stat hero-anim" style="animation-delay:1.05s">
+      <div class="num"><span class="gradient-text count" data-count="40" data-suffix="%">0%</span></div>
+      <div class="label" data-en="Efficiency gain w/ AI" data-es="Eficiencia con IA">Efficiency gain w/ AI</div>
+    </div>
+    <div class="stat hero-anim" style="animation-delay:1.15s">
+      <div class="num"><span class="gradient-text count" data-count="3" data-suffix="/3">0/3</span></div>
+      <div class="label" data-en="National robotics finals" data-es="Finales nacionales robótica">National robotics finals</div>
+    </div>
+  </div>
+  <div class="scroll-hint" data-en="SCROLL ↓" data-es="DESLIZÁ ↓">SCROLL ↓</div>
+</header>
+
+<!-- ===================== MARQUEE ===================== -->
+<div class="marquee">
+  <div class="marquee-track">
+    <span class="marquee-item">React</span><span class="marquee-item">Node.js</span>
+    <span class="marquee-item">PostgreSQL</span><span class="marquee-item">STM32</span>
+    <span class="marquee-item">WebXR</span><span class="marquee-item">PID Control</span>
+    <span class="marquee-item">TypeScript</span><span class="marquee-item">PCB Design</span>
+    <span class="marquee-item">Cloudflare</span><span class="marquee-item">Ansys FEM</span>
+    <span class="marquee-item">C/C++</span><span class="marquee-item">Applied AI</span>
+    <span class="marquee-item">Prisma ORM</span><span class="marquee-item">Embedded</span>
+    <span class="marquee-item">React</span><span class="marquee-item">Node.js</span>
+    <span class="marquee-item">PostgreSQL</span><span class="marquee-item">STM32</span>
+    <span class="marquee-item">WebXR</span><span class="marquee-item">PID Control</span>
+    <span class="marquee-item">TypeScript</span><span class="marquee-item">PCB Design</span>
+    <span class="marquee-item">Cloudflare</span><span class="marquee-item">Ansys FEM</span>
+    <span class="marquee-item">C/C++</span><span class="marquee-item">Applied AI</span>
+    <span class="marquee-item">Prisma ORM</span><span class="marquee-item">Embedded</span>
+  </div>
+</div>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about">
+  <div class="sec-head reveal">
+    <div class="sec-kicker"><span class="idx">01</span> — <span data-en="Profile" data-es="Perfil">Profile</span></div>
+    <h2 class="sec-title" data-en="Software and hardware, by the same hand." data-es="Software y hardware, de la misma mano.">Software and hardware, by the same hand.</h2>
+  </div>
+  <div class="about-grid">
+    <div class="about-photo reveal">
+      <img src="assets/lautaro.png" alt="Lautaro N. Benitez" loading="lazy" />
+    </div>
+    <div class="about-text reveal reveal-d1">
+      <p data-en="I'm a <strong>Full Stack Developer</strong> and a <strong>Mechatronics Engineer</strong> — and I don't see those as separate careers. Over 5+ years I've taken products from a relational schema and a cloud deploy all the way down to a PCB layout and the firmware running on it."
+         data-es="Soy <strong>Desarrollador Full Stack</strong> e <strong>Ingeniero Mecatrónico</strong> — y no los veo como carreras separadas. A lo largo de más de 5 años llevé productos desde un esquema relacional y un deploy en la nube hasta el layout de una PCB y el firmware que corre en ella."></p>
+      <p data-en="On the <strong>software</strong> side: multitenant SaaS architecture, secure APIs, OAuth, and cloud infrastructure. On the <strong>engineering</strong> side: embedded systems with custom C/C++ firmware, PCB design, real-time PID control, and CAD/CAE with FEM structural analysis."
+         data-es="Del lado del <strong>software</strong>: arquitectura SaaS multitenant, APIs seguras, OAuth e infraestructura cloud. Del lado de la <strong>ingeniería</strong>: sistemas embebidos con firmware propio en C/C++, diseño de PCB, control PID en tiempo real y CAD/CAE con análisis estructural FEM."></p>
+      <p data-en="That dual fluency is the point: I can own a feature end to end and also reason about the physical system it talks to. I thrive in <strong>high-performance, interdisciplinary teams</strong> — remote or on-site."
+         data-es="Esa fluidez dual es justamente el punto: puedo tomar ownership de una feature de punta a punta y también razonar sobre el sistema físico con el que dialoga. Doy lo mejor en <strong>equipos interdisciplinarios de alto rendimiento</strong> — remotos o presenciales."></p>
+    </div>
+    <div class="about-card reveal reveal-d2">
+      <div class="about-card-inner">
+        <h3 data-en="Quick facts" data-es="Datos clave">Quick facts</h3>
+        <div class="info-row"><span class="k" data-en="Location" data-es="Ubicación">Location</span><span class="v">Buenos Aires, AR</span></div>
+        <div class="info-row"><span class="k" data-en="Availability" data-es="Disponibilidad">Availability</span><span class="v" data-en="Open to remote" data-es="Abierto a remoto">Open to remote</span></div>
+        <div class="info-row"><span class="k" data-en="Profile" data-es="Perfil">Profile</span><span class="v" data-en="Engineering + Full Stack" data-es="Ingeniería + Full Stack">Engineering + Full Stack</span></div>
+        <div class="info-row"><span class="k" data-en="Education" data-es="Educación">Education</span><span class="v" data-en="Mechatronics Eng." data-es="Ing. Mecatrónica">Mechatronics Eng.</span></div>
+        <div class="info-row"><span class="k" data-en="Languages" data-es="Idiomas">Languages</span><span class="v" data-en="ES native · EN · DE" data-es="ES nativo · EN · DE">ES native · EN · DE</span></div>
+        <div class="info-row"><span class="k" data-en="Certified" data-es="Certificado">Certified</span><span class="v">Google AI (2025)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SKILLS ===================== -->
+<section id="skills">
+  <div class="sec-head reveal">
+    <div class="sec-kicker"><span class="idx">02</span> — <span data-en="Capabilities" data-es="Capacidades">Capabilities</span></div>
+    <h2 class="sec-title" data-en="Two disciplines, one engineer." data-es="Dos disciplinas, un solo ingeniero.">Two disciplines, one engineer.</h2>
+    <p class="sec-desc" data-en="A genuinely integral profile: software architecture and embedded engineering carry equal weight. From a multitenant SaaS deploy to a real-time PID control loop on bare metal."
+       data-es="Un perfil genuinamente integral: la arquitectura de software y la ingeniería embebida pesan por igual. Desde el deploy de un SaaS multitenant hasta un lazo de control PID en tiempo real sobre bare metal.">An integral profile.</p>
+  </div>
+
+  <div class="skill-domain reveal">
+    <span class="domain-label" data-en="Software & Web" data-es="Software & Web">Software & Web</span>
+    <span class="domain-rule"></span>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-inner reveal">
+        <div class="skill-icon" data-icon="frontend"></div>
+        <h4 data-en="Frontend" data-es="Frontend">Frontend</h4>
+        <p class="skill-p" data-en="Responsive, performant interfaces with modern tooling."
+           data-es="Interfaces responsivas y performantes con tooling moderno.">Responsive, performant interfaces.</p>
+        <div class="tags"><span>React</span><span>Vite</span><span>HTML5</span><span>CSS3</span><span>PWA</span><span>Three.js</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d1">
+        <div class="skill-icon" data-icon="backend"></div>
+        <h4 data-en="Backend" data-es="Backend">Backend</h4>
+        <p class="skill-p" data-en="Secure APIs, auth and real-time communication."
+           data-es="APIs seguras, autenticación y comunicación en tiempo real.">Secure APIs and real-time.</p>
+        <div class="tags"><span>Node.js</span><span>REST API</span><span>OAuth2</span><span>JWT</span><span>WebSockets</span><span>Encryption</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d2">
+        <div class="skill-icon" data-icon="database"></div>
+        <h4 data-en="Databases" data-es="Bases de datos">Databases</h4>
+        <p class="skill-p" data-en="Relational schema design built to scale."
+           data-es="Diseño de esquemas relacionales pensados para escalar.">Relational schema design.</p>
+        <div class="tags"><span>PostgreSQL</span><span>Prisma ORM</span><span>SQL</span><span>Migrations</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d3">
+        <div class="skill-icon" data-icon="cloud"></div>
+        <h4 data-en="Infra & DevOps" data-es="Infra & DevOps">Infra & DevOps</h4>
+        <p class="skill-p" data-en="Deploy & maintain cloud infrastructure end to end."
+           data-es="Despliego y mantengo infraestructura cloud de punta a punta.">Deploy & maintain cloud infra.</p>
+        <div class="tags"><span>Cloudflare</span><span>Railway</span><span>CI/CD</span><span>Git/GitHub</span><span>Resend</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="skill-domain reveal" style="margin-top:54px">
+    <span class="domain-label" data-en="Engineering & Embedded" data-es="Ingeniería & Embebidos">Engineering & Embedded</span>
+    <span class="domain-rule"></span>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-inner reveal">
+        <div class="skill-icon" data-icon="chip"></div>
+        <h4 data-en="Embedded Systems" data-es="Sistemas Embebidos">Embedded Systems</h4>
+        <p class="skill-p" data-en="Custom firmware & full hardware/software integration."
+           data-es="Firmware propio e integración completa de hardware y software.">Custom firmware & hardware.</p>
+        <div class="tags"><span>STM32</span><span>Arduino</span><span>C/C++</span><span>I2C/SPI/UART</span><span>RTOS</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d1">
+        <div class="skill-icon" data-icon="circuit"></div>
+        <h4 data-en="Electronics & PCB" data-es="Electrónica & PCB">Electronics & PCB</h4>
+        <p class="skill-p" data-en="Analog/digital circuit design, validation and testing."
+           data-es="Diseño de circuitos analógicos y digitales, validación y testing.">Circuit design & PCB.</p>
+        <div class="tags"><span>Eagle</span><span>Proteus</span><span>PCB Design</span><span>PID Control</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d2">
+        <div class="skill-icon" data-icon="automation"></div>
+        <h4 data-en="Automation & Control" data-es="Automatización & Control">Automation & Control</h4>
+        <p class="skill-p" data-en="Industrial control, real-time systems and IoT integration."
+           data-es="Control industrial, sistemas en tiempo real e integración IoT.">Industrial & real-time control.</p>
+        <div class="tags"><span>PLC</span><span>IoT</span><span>SCADA</span><span>Sensors/Actuators</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d3">
+        <div class="skill-icon" data-icon="cad"></div>
+        <h4 data-en="CAD / CAE / CAM" data-es="CAD / CAE / CAM">CAD / CAE / CAM</h4>
+        <p class="skill-p" data-en="Mechanical design, FEM structural analysis and 3D prototyping."
+           data-es="Diseño mecánico, análisis estructural FEM y prototipado 3D.">Mechanical design & FEM.</p>
+        <div class="tags"><span>Siemens NX</span><span>SolidWorks</span><span>Ansys</span><span>MATLAB</span><span>FDM/SLA</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="skill-domain reveal" style="margin-top:54px">
+    <span class="domain-label" data-en="Cross-domain" data-es="Transversal">Cross-domain</span>
+    <span class="domain-rule"></span>
+  </div>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-inner reveal">
+        <div class="skill-icon" data-icon="ai"></div>
+        <h4 data-en="Applied AI" data-es="IA Aplicada">Applied AI</h4>
+        <p class="skill-p" data-en="LLM integration & AI-driven automation across design and code."
+           data-es="Integración de LLM y automatización con IA en diseño y código.">LLM integration & automation.</p>
+        <div class="tags"><span>LLM Integration</span><span>Prompt Eng.</span><span>Google Gemini</span><span>Automation</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d1">
+        <div class="skill-icon" data-icon="xr"></div>
+        <h4 data-en="AR / VR — WebXR" data-es="AR / VR — WebXR">AR / VR — WebXR</h4>
+        <p class="skill-p" data-en="Installer-free WebXR apps for iOS & Android."
+           data-es="Apps WebXR sin instaladores para iOS y Android.">Installer-free WebXR apps.</p>
+        <div class="tags"><span>WebXR</span><span>Image Tracking</span><span>Three.js</span><span>iOS/Android</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d2">
+        <div class="skill-icon" data-icon="code"></div>
+        <h4 data-en="Languages" data-es="Lenguajes">Languages</h4>
+        <p class="skill-p" data-en="Polyglot — from web frameworks down to low-level firmware."
+           data-es="Políglota — de frameworks web hasta firmware de bajo nivel.">Web to low-level.</p>
+        <div class="tags"><span>JavaScript</span><span>TypeScript</span><span>Python</span><span>C/C++</span><span>SQL</span></div>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-inner reveal reveal-d3">
+        <div class="skill-icon" data-icon="lead"></div>
+        <h4 data-en="Technical Leadership" data-es="Liderazgo Técnico">Technical Leadership</h4>
+        <p class="skill-p" data-en="Leading interdisciplinary projects from spec to delivery."
+           data-es="Liderazgo de proyectos interdisciplinarios del spec a la entrega.">Interdisciplinary project lead.</p>
+        <div class="tags"><span>Project Mgmt</span><span>Mentoring</span><span>Architecture</span><span>Remote/Async</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== WORK / PROJECTS ===================== -->
+<section id="work">
+  <div class="sec-head reveal">
+    <div class="sec-kicker"><span class="idx">03</span> — <span data-en="Selected Work" data-es="Proyectos Destacados">Selected Work</span></div>
+    <h2 class="sec-title" data-en="Things I've built." data-es="Cosas que construí.">Things I've built.</h2>
+  </div>
+  <div class="projects">
+
+    <article class="project reveal">
+      <div class="pnum">01</div>
+      <div class="pbody">
+        <div class="ptype">SaaS · Multitenant Architecture</div>
+        <h4>Cupofy</h4>
+        <p data-en="A multitenant SaaS appointment-management platform with full Google OAuth authentication and sensitive-data encryption. I designed the PostgreSQL + Prisma relational database for scalability and security, deployed it on Railway + Cloudflare with transactional email via Resend — full product ownership across architecture, backend, frontend and infrastructure."
+           data-es="Plataforma SaaS multitenant de gestión de turnos con autenticación completa vía Google OAuth y encriptación de datos sensibles. Diseñé la base de datos relacional PostgreSQL + Prisma orientada a escalabilidad y seguridad, la desplegué en Railway + Cloudflare con email transaccional vía Resend — ownership total del producto en arquitectura, backend, frontend e infraestructura."></p>
+        <div class="pstack"><span>React</span><span>Node.js</span><span>PostgreSQL</span><span>Prisma</span><span>Cloudflare</span><span>Railway</span><span>Resend</span></div>
+        <!-- REEMPLAZAR href con la URL real del repo y del sitio en vivo de Cupofy -->
+        <div class="plinks">
+          <a class="plink" href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+            <span data-en="View code" data-es="Ver código">View code</span>
+          </a>
+          <a class="plink" href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M9 7h8v8"/></svg>
+            <span data-en="Live demo" data-es="Ver en vivo">Live demo</span>
+          </a>
+        </div>
+      </div>
+      <div class="pmedia">
+        <div class="pstatus"><span class="live"></span><span data-en="In production" data-es="En producción">In production</span></div>
+        <!-- SCREENSHOT Cupofy: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
+        <div class="pshot">
+          <div class="shot-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span data-en="Screenshot / mockup<br>Cupofy" data-es="Captura / maqueta<br>Cupofy">Screenshot / mockup<br>Cupofy</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="project reveal">
+      <div class="pnum">02</div>
+      <div class="pbody">
+        <div class="ptype">PWA · Real-Time Communication</div>
+        <h4 data-en="Travel Log PWA" data-es="Bitácora de Viaje PWA">Travel Log PWA</h4>
+        <p data-en="A Progressive Web App built for users in remote, low-connectivity areas, featuring push notifications and real-time communication. The unconventional twist: WebSockets enabled via an .htaccess modification on a shared WordPress host — no dedicated infrastructure. Validated by real users over 1+ year."
+           data-es="Una Progressive Web App construida para usuarios en zonas remotas con conectividad limitada, con notificaciones push y comunicación en tiempo real. El giro no convencional: WebSockets habilitados mediante una modificación de .htaccess sobre un hosting WordPress compartido — sin infraestructura dedicada. Validada por usuarios reales durante más de 1 año."></p>
+        <div class="pstack"><span>PWA</span><span>JavaScript</span><span>WebSockets</span><span>WordPress</span><span>Hostinger</span></div>
+        <!-- REEMPLAZAR href con la URL real del repo de Travel Log PWA -->
+        <div class="plinks">
+          <a class="plink" href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+            <span data-en="View code" data-es="Ver código">View code</span>
+          </a>
+        </div>
+      </div>
+      <div class="pmedia">
+        <div class="pstatus"><span class="live"></span><span data-en="1+ yr live" data-es="1+ año en uso">1+ yr live</span></div>
+        <!-- SCREENSHOT Travel Log PWA: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
+        <div class="pshot">
+          <div class="shot-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span data-en="Screenshot / mockup<br>Travel Log PWA" data-es="Captura / maqueta<br>Travel Log PWA">Screenshot / mockup<br>Travel Log PWA</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="project reveal">
+      <div class="pnum">03</div>
+      <div class="pbody">
+        <div class="ptype">WebXR · Augmented Reality</div>
+        <h4 data-en="Industrial AR App" data-es="App de Realidad Aumentada Industrial">Industrial AR App</h4>
+        <p data-en="An installer-free WebXR application using Image Tracking and Environment Tracking to visualize technical components. Runs natively on iOS and Android with no app install required, and is performance-optimized for engineering and industrial-maintenance use cases."
+           data-es="Una aplicación WebXR sin instaladores que usa Image Tracking y Environment Tracking para visualizar componentes técnicos. Corre de forma nativa en iOS y Android sin necesidad de instalar una app, y está optimizada en rendimiento para casos de uso de ingeniería y mantenimiento industrial."></p>
+        <div class="pstack"><span>JavaScript</span><span>WebXR</span><span>Three.js</span><span>Image Tracking</span></div>
+        <!-- REEMPLAZAR href con la URL real del repo de la AR App -->
+        <div class="plinks">
+          <a class="plink" href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+            <span data-en="View code" data-es="Ver código">View code</span>
+          </a>
+        </div>
+      </div>
+      <div class="pmedia">
+        <div class="pstatus"><span data-en="Full stack" data-es="Full stack">Full stack</span></div>
+        <!-- SCREENSHOT Industrial AR App: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
+        <div class="pshot">
+          <div class="shot-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span data-en="Screenshot / mockup<br>Industrial AR App" data-es="Captura / maqueta<br>Industrial AR App">Screenshot / mockup<br>Industrial AR App</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="project reveal">
+      <div class="pnum">04</div>
+      <div class="pbody">
+        <div class="ptype">Embedded · Robotics</div>
+        <h4 data-en="Line-Following Robot" data-es="Robot Seguidor de Línea">Line-Following Robot</h4>
+        <p data-en="End-to-end PCB design, C/C++ firmware and mechanical build for the National Robotics League. Implemented infrared sensors, actuators and a real-time PID control loop, with wireless Wi-Fi debugging for dynamic response tuning mid-competition."
+           data-es="Diseño integral de PCB, firmware en C/C++ y construcción mecánica para la Liga Nacional de Robótica. Implementé sensores infrarrojos, actuadores y un lazo de control PID en tiempo real, con debugging inalámbrico vía Wi-Fi para ajustar la respuesta dinámica durante la competencia."></p>
+        <div class="pstack"><span>C/C++</span><span>STM32</span><span>PID Control</span><span>PCB Design</span></div>
+        <!-- REEMPLAZAR href con la URL real del repo del Line-Following Robot -->
+        <div class="plinks">
+          <a class="plink" href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+            <span data-en="View code" data-es="Ver código">View code</span>
+          </a>
+        </div>
+      </div>
+      <div class="pmedia">
+        <div class="pstatus"><span data-en="National league" data-es="Liga nacional">National league</span></div>
+        <!-- SCREENSHOT Line-Following Robot: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
+        <div class="pshot">
+          <div class="shot-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span data-en="Screenshot / mockup<br>Line-Following Robot" data-es="Captura / maqueta<br>Line-Following Robot">Screenshot / mockup<br>Line-Following Robot</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="project reveal">
+      <div class="pnum">05</div>
+      <div class="pbody">
+        <div class="ptype">Embedded · Hardware</div>
+        <h4 data-en="STM32 MIDI Controller" data-es="Controlador MIDI con STM32">STM32 MIDI Controller</h4>
+        <p data-en="A custom embedded musical control system. I developed a bespoke MIDI protocol library for the STM32 microcontroller and integrated I2C, UART and USB interfaces with an encoder- and display-based user interface."
+           data-es="Un sistema embebido de control musical a medida. Desarrollé una librería propia del protocolo MIDI para el microcontrolador STM32 e integré interfaces I2C, UART y USB con una interfaz de usuario basada en encoders y displays."></p>
+        <div class="pstack"><span>C/C++</span><span>STM32</span><span>MIDI Protocol</span><span>I2C/UART/USB</span></div>
+        <!-- REEMPLAZAR href con la URL real del repo del MIDI Controller -->
+        <div class="plinks">
+          <a class="plink" href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+            <span data-en="View code" data-es="Ver código">View code</span>
+          </a>
+        </div>
+      </div>
+      <div class="pmedia">
+        <div class="pstatus"><span data-en="Hardware build" data-es="Hardware">Hardware build</span></div>
+        <!-- SCREENSHOT STM32 MIDI Controller: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
+        <div class="pshot">
+          <div class="shot-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span data-en="Screenshot / mockup<br>STM32 MIDI Controller" data-es="Captura / maqueta<br>STM32 MIDI Controller">Screenshot / mockup<br>STM32 MIDI Controller</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="project reveal">
+      <div class="pnum">06</div>
+      <div class="pbody">
+        <div class="ptype">Aerospace · Mechatronic Design</div>
+        <h4>MendoSAT — <span data-en="Nanosatellite" data-es="Nanosatélite">Nanosatellite</span></h4>
+        <p data-en="Preliminary mechatronic design within a multidisciplinary aerospace team. I designed and prototyped the orbital solar-panel deployment system and ran FEM structural analysis and simulations in Ansys for launch-load conditions."
+           data-es="Diseño mecatrónico preliminar dentro de un equipo aeroespacial multidisciplinario. Diseñé y prototipé el sistema de despliegue de paneles solares en órbita y realicé análisis estructural FEM y simulaciones en Ansys para condiciones de carga de lanzamiento."></p>
+        <div class="pstack"><span>CAD</span><span>FEM Analysis</span><span>Ansys</span><span>Prototyping</span></div>
+        <!-- REEMPLAZAR href con la URL real del repo de MendoSAT -->
+        <div class="plinks">
+          <a class="plink" href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+            <span data-en="View code" data-es="Ver código">View code</span>
+          </a>
+        </div>
+      </div>
+      <div class="pmedia">
+        <div class="pstatus"><span data-en="Aerospace" data-es="Aeroespacial">Aerospace</span></div>
+        <!-- SCREENSHOT MendoSAT: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
+        <div class="pshot">
+          <div class="shot-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <span data-en="Screenshot / mockup<br>MendoSAT" data-es="Captura / maqueta<br>MendoSAT">Screenshot / mockup<br>MendoSAT</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </div>
+  <div class="work-cta reveal">
+    <a href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener" class="btn-ghost">
+      <svg viewBox="0 0 24 24" fill="currentColor" style="width:17px;height:17px"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+      <span data-en="See more projects on GitHub" data-es="Ver más proyectos en GitHub">See more projects on GitHub</span>
+    </a>
+  </div>
+</section>
+
+<!-- ===================== EXPERIENCE ===================== -->
+<section id="experience">
+  <div class="sec-head reveal">
+    <div class="sec-kicker"><span class="idx">04</span> — <span data-en="Track Record" data-es="Trayectoria">Track Record</span></div>
+    <h2 class="sec-title" data-en="Where I've worked." data-es="Dónde trabajé.">Where I've worked.</h2>
+  </div>
+  <div class="timeline">
+    <div class="tl-item reveal">
+      <div class="tl-date" data-en="August 2017 — Present" data-es="Agosto 2017 — Actualidad">August 2017 — Present</div>
+      <h4 data-en="Engineering Project Lead / Full Stack Developer" data-es="Jefe de Proyectos de Ingeniería / Full Stack Developer">Engineering Project Lead / Full Stack Developer</h4>
+      <div class="tl-org">IN3DITO · Argentina</div>
+      <ul>
+        <li data-en="Built full stack web apps, WebXR AR/VR apps and PWAs for clients across multiple industries" data-es="Desarrollo de apps web full stack, apps AR/VR con WebXR y PWAs para clientes de distintos sectores"></li>
+        <li data-en="Architected embedded systems with custom firmware (C/C++, STM32, Arduino) — full hardware/software integration" data-es="Arquitectura de sistemas embebidos con firmware propio (C/C++, STM32, Arduino) — integración hardware/software completa"></li>
+        <li data-en="Integrated AI tooling into design and automation workflows — 40% increase in operational efficiency" data-es="Integré herramientas de IA en flujos de diseño y automatización — 40% de incremento en eficiencia operativa"></li>
+        <li data-en="Deployed and maintained cloud infrastructure: CI/CD pipelines, Cloudflare, Railway" data-es="Despliegue y mantenimiento de infraestructura cloud: pipelines CI/CD, Cloudflare, Railway"></li>
+      </ul>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date" data-en="April 2025 — February 2026" data-es="Abril 2025 — Febrero 2026">April 2025 — February 2026</div>
+      <h4 data-en="Technology Teacher" data-es="Profesor de Tecnología">Technology Teacher</h4>
+      <div class="tl-org">ICEI — Instituto Cuyano de Educación Integral · Mendoza</div>
+      <ul>
+        <li data-en="Taught embedded systems programming, 3D design and applied electronics" data-es="Enseñé programación de sistemas embebidos, diseño 3D y electrónica aplicada"></li>
+        <li data-en="Delivered instruction on applied AI and ethical use of LLM models" data-es="Instrucción en IA aplicada y uso ético de modelos LLM"></li>
+        <li data-en="Implemented project-based learning — 50% increase in student engagement" data-es="Implementé aprendizaje basado en proyectos — 50% de mejora en participación"></li>
+      </ul>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date" data-en="August 2022 — January 2024" data-es="Agosto 2022 — Enero 2024">August 2022 — January 2024</div>
+      <h4 data-en="Web Designer & Developer" data-es="Diseñador y Desarrollador Web">Web Designer & Developer</h4>
+      <div class="tl-org">ISTEEC · Mendoza</div>
+      <ul>
+        <li data-en="Designed, maintained and optimized the institutional website with WordPress" data-es="Diseño, mantenimiento y optimización del sitio institucional con WordPress"></li>
+        <li data-en="Improved SEO, UX/UI and internal digital communication workflows" data-es="Mejoras de SEO, UX/UI y flujos internos de comunicación digital"></li>
+      </ul>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-date" data-en="March 2017 — April 2020" data-es="Marzo 2017 — Abril 2020">March 2017 — April 2020</div>
+      <h4 data-en="Technical Lead / Mentor" data-es="Líder Técnico / Mentor">Technical Lead / Mentor</h4>
+      <div class="tl-org" data-en="Robotics Club — National University of Cuyo · Mendoza" data-es="Club de Robótica — Universidad Nacional de Cuyo · Mendoza">Robotics Club — National University of Cuyo · Mendoza</div>
+      <ul>
+        <li data-en="Co-led 5 teams alongside 2 mentors — qualified for national rounds in all 3 competitions entered" data-es="Co-lideré 5 equipos junto a 2 mentores — clasificación a instancias nacionales en las 3 competencias disputadas"></li>
+        <li data-en="Mentored students in electronic design, C/C++ firmware, PCB design and sensor/actuator integration" data-es="Mentoría en diseño electrónico, firmware C/C++, diseño de PCB e integración de sensores y actuadores"></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section id="contact" class="contact">
+  <div class="sec-kicker reveal" style="justify-content:center"><span class="idx">05</span> — <span data-en="Get in touch" data-es="Contacto">Get in touch</span></div>
+  <div class="big reveal reveal-d1">
+    <span data-en="Let's build" data-es="Construyamos">Let's build</span><br>
+    <span class="gradient-text" data-en="something real." data-es="algo real.">something real.</span>
+  </div>
+  <p class="sec-desc reveal reveal-d2" style="max-width:580px;margin:0 auto"
+     data-en="Available for remote roles — engineering or full stack development. The fastest way to reach me is email."
+     data-es="Disponible para roles remotos — ingeniería o desarrollo full stack. La forma más rápida de contactarme es por email.">Available for remote roles.</p>
+  <div class="contact-links reveal reveal-d3">
+    <a href="mailto:lautaronbenitez@gmail.com">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+      lautaronbenitez@gmail.com
+    </a>
+    <a href="https://github.com/Lautaro-Benitez" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.96c-2.9.63-3.52-1.24-3.52-1.24-.48-1.2-1.16-1.52-1.16-1.52-.95-.65.07-.64.07-.64 1.05.07 1.6 1.08 1.6 1.08.93 1.6 2.45 1.14 3.05.87.1-.68.36-1.14.66-1.4-2.32-.26-4.76-1.16-4.76-5.16 0-1.14.41-2.07 1.08-2.8-.11-.27-.47-1.33.1-2.78 0 0 .88-.28 2.88 1.07a10 10 0 0 1 5.24 0c2-1.35 2.88-1.07 2.88-1.07.57 1.45.21 2.51.1 2.78.67.73 1.07 1.66 1.07 2.8 0 4.01-2.44 4.9-4.77 5.15.37.32.7.95.7 1.92v2.85c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+      github.com/Lautaro-Benitez
+    </a>
+    <a href="https://www.linkedin.com/in/lautaronbenitez/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v0M12 17v-4a2 2 0 0 1 4 0v4"/></svg>
+      in / lautaronbenitez
+    </a>
+    <a href="tel:+5492616209845">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L19 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 5 6a2 2 0 0 1 0-2z"/></svg>
+      +54 9 261 620 9845
+    </a>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 Lautaro N. Benitez</span>
+  <span data-en="Designed & built end-to-end · Buenos Aires, AR" data-es="Diseñado y construido end-to-end · Buenos Aires, AR">Designed & built end-to-end · Buenos Aires, AR</span>
+</footer>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ============ SVG ICON SET (stroke-based, no emojis) ============ */
+const ICONS = {
+  frontend: '<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 18v3M16 18v3M7 21h10"/>',
+  backend: '<path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3z"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+  database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  cloud: '<path d="M17.5 19a4.5 4.5 0 0 0 .5-9 6 6 0 0 0-11.6-1.8A4 4 0 0 0 6.5 19h11z"/><path d="M9 14l2 2 4-4"/>',
+  chip: '<rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/>',
+  circuit: '<circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 6h6M6 8v8a2 2 0 0 0 2 2h8M16 6h0M16.6 16.6L18 18"/>',
+  automation: '<path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3.5"/>',
+  cad: '<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/>',
+  ai: '<path d="M12 3a4 4 0 0 0-4 4v1a3 3 0 0 0 0 6v1a4 4 0 0 0 8 0v-1a3 3 0 0 0 0-6V7a4 4 0 0 0-4-4z"/><path d="M12 3v18M8 8h0M16 8h0M8 16h0M16 16h0"/>',
+  xr: '<path d="M3 9a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v4a3 3 0 0 1-3 3h-3l-2-2h-4l-2 2H6a3 3 0 0 1-3-3V9z"/><circle cx="8.5" cy="11" r="1.5"/><circle cx="15.5" cy="11" r="1.5"/>',
+  code: '<path d="M8 6l-5 6 5 6M16 6l5 6-5 6M14 4l-4 16"/>',
+  lead: '<circle cx="12" cy="7" r="3.2"/><path d="M5.5 21c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M19 3l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z"/>'
+};
+function svgIcon(name){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+(ICONS[name]||'')+'</svg>';
+}
+document.querySelectorAll('[data-icon]').forEach(el=>{
+  el.innerHTML = svgIcon(el.getAttribute('data-icon'));
+});
+
+/* ============ LANGUAGE TOGGLE ============ */
+function setLang(lang){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    const txt = el.getAttribute('data-'+lang);
+    if(txt!==null){
+      if(/[<&]/.test(txt)) el.innerHTML = txt;
+      else el.textContent = txt;
+    }
+  });
+  document.getElementById('lang-en').classList.toggle('active', lang==='en');
+  document.getElementById('lang-es').classList.toggle('active', lang==='es');
+  /* serve the CV that matches the active language */
+  const cv = document.getElementById('cv-download');
+  if(cv){
+    cv.href = lang==='es'
+      ? 'assets/CV_Ingeniero_LautaroBenitez_ES.pdf'
+      : 'assets/CV_Engineer_LautaroBenitez_EN.pdf';
+  }
+}
+
+/* ============ NAV SCROLL STATE ============ */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', ()=>{
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* ============ MOBILE MENU ============ */
+const burger = document.getElementById('burger');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', ()=> mobileMenu.classList.toggle('open'));
+mobileMenu.querySelectorAll('a').forEach(a=> a.addEventListener('click', ()=> mobileMenu.classList.remove('open')));
+
+/* ============ HERO ENTRANCE ============ */
+window.addEventListener('load', ()=>{
+  document.querySelectorAll('.hero-anim').forEach(el=> el.classList.add('play'));
+  /* count-up stats once the hero entrance has settled */
+  setTimeout(runCounters, 950);
+});
+
+/* ============ ANIMATED COUNTERS ============ */
+function runCounters(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.count').forEach(el=>{
+    const target = parseFloat(el.dataset.count) || 0;
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    if(reduce){ el.textContent = prefix + target + suffix; return; }
+    const duration = 1400;
+    const start = performance.now();
+    function tick(now){
+      const p = Math.min((now - start) / duration, 1);
+      /* easeOutExpo for a snappy, premium finish */
+      const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+      el.textContent = prefix + Math.round(eased * target) + suffix;
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+/* ============ SCROLL REVEAL ============ */
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+},{ threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+
+/* ============ CURSOR SPOTLIGHT + 3D TILT ============ */
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  /* --- spotlight: skill cards + projects --- */
+  const spotlightEls = document.querySelectorAll('.skill-card, .project');
+  let raf = null, pending = null;
+  function apply(){
+    if(pending){
+      const {el,x,y} = pending;
+      el.style.setProperty('--mx', x+'px');
+      el.style.setProperty('--my', y+'px');
+      pending = null;
+    }
+    raf = null;
+  }
+  spotlightEls.forEach(el=>{
+    el.addEventListener('pointermove', e=>{
+      const r = el.getBoundingClientRect();
+      pending = { el, x: e.clientX - r.left, y: e.clientY - r.top };
+      if(!raf) raf = requestAnimationFrame(apply);
+    });
+  });
+
+  /* --- 3D tilt: skill cards only (skip on touch / reduced-motion) --- */
+  if(reduce || !finePointer) return;
+  const MAX_TILT = 6;   // degrees per axis half -> up to 12deg total
+  const LIFT = 0;       // no vertical jump, only 3D rotation in place
+  document.querySelectorAll('.skill-card').forEach(card=>{
+    let tRaf = null, tp = null;
+    function tApply(){
+      if(tp){
+        card.style.setProperty('--rx', tp.rx+'deg');
+        card.style.setProperty('--ry', tp.ry+'deg');
+        tp = null;
+      }
+      tRaf = null;
+    }
+    card.addEventListener('pointerenter', ()=>{
+      card.classList.add('tilting');
+      card.style.setProperty('--ty', LIFT+'px');
+    });
+    card.addEventListener('pointermove', e=>{
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width  - 0.5;
+      const py = (e.clientY - r.top)  / r.height - 0.5;
+      tp = { rx: (-py * MAX_TILT * 2).toFixed(2), ry: (px * MAX_TILT * 2).toFixed(2) };
+      if(!tRaf) tRaf = requestAnimationFrame(tApply);
+    });
+    card.addEventListener('pointerleave', ()=>{
+      card.classList.remove('tilting');
+      card.style.setProperty('--rx','0deg');
+      card.style.setProperty('--ry','0deg');
+      card.style.setProperty('--ty','0px');
+    });
+  });
+})();
+
+/* ============ THREE.JS — ELEGANT PARTICLE CONSTELLATION ============ */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  if(!window.THREE) return;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x05060a, 0.045);
+
+  const camera = new THREE.PerspectiveCamera(62, window.innerWidth/window.innerHeight, 0.1, 120);
+  camera.position.z = 26;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const FIELD = { x: 56, y: 36, z: 28 };
+
+  /* ---- soft circular sprite for refined particles ---- */
+  function makeDot(){
+    const c = document.createElement('canvas');
+    c.width = c.height = 64;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(32,32,0,32,32,32);
+    g.addColorStop(0,'rgba(255,255,255,1)');
+    g.addColorStop(0.35,'rgba(255,255,255,0.6)');
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,64,64);
+    const tex = new THREE.Texture(c);
+    tex.needsUpdate = true;
+    return tex;
+  }
+  const dotTex = makeDot();
+
+  /* ---- main drifting particle cloud ---- */
+  const COUNT = 260;
+  const data = [];
+  const positions = new Float32Array(COUNT*3);
+  for(let i=0;i<COUNT;i++){
+    const p = {
+      x:(Math.random()-0.5)*FIELD.x,
+      y:(Math.random()-0.5)*FIELD.y,
+      z:(Math.random()-0.5)*FIELD.z,
+      vx:(Math.random()-0.5)*0.012,
+      vy:(Math.random()-0.5)*0.012,
+      vz:(Math.random()-0.5)*0.008
+    };
+    data.push(p);
+    positions[i*3]=p.x; positions[i*3+1]=p.y; positions[i*3+2]=p.z;
+  }
+  const pGeo = new THREE.BufferGeometry();
+  pGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  const pMat = new THREE.PointsMaterial({
+    size: 0.5, map: dotTex, transparent: true, opacity: 0.85,
+    color: 0xbcd0ff, depthWrite: false, blending: THREE.AdditiveBlending,
+    sizeAttenuation: true
+  });
+  const points = new THREE.Points(pGeo, pMat);
+  scene.add(points);
+
+  /* ---- accent particles (fewer, colored, larger glow) ---- */
+  const ACCENT = 26;
+  const accData = [];
+  const accPos = new Float32Array(ACCENT*3);
+  for(let i=0;i<ACCENT;i++){
+    const p = {
+      x:(Math.random()-0.5)*FIELD.x,
+      y:(Math.random()-0.5)*FIELD.y,
+      z:(Math.random()-0.5)*FIELD.z,
+      vx:(Math.random()-0.5)*0.01,
+      vy:(Math.random()-0.5)*0.01,
+      vz:(Math.random()-0.5)*0.006
+    };
+    accData.push(p);
+    accPos[i*3]=p.x; accPos[i*3+1]=p.y; accPos[i*3+2]=p.z;
+  }
+  const aGeo = new THREE.BufferGeometry();
+  aGeo.setAttribute('position', new THREE.BufferAttribute(accPos,3));
+  const aMat = new THREE.PointsMaterial({
+    size: 1.1, map: dotTex, transparent: true, opacity: 0.9,
+    color: 0x4af0c8, depthWrite: false, blending: THREE.AdditiveBlending
+  });
+  const accent = new THREE.Points(aGeo, aMat);
+  scene.add(accent);
+
+  /* ---- distant dust layer (depth) ---- */
+  const DUST = 420;
+  const dustPos = new Float32Array(DUST*3);
+  for(let i=0;i<DUST*3;i++){ dustPos[i]=(Math.random()-0.5)*90; }
+  const dGeo = new THREE.BufferGeometry();
+  dGeo.setAttribute('position', new THREE.BufferAttribute(dustPos,3));
+  const dMat = new THREE.PointsMaterial({
+    size: 0.12, color: 0x6b8cff, transparent: true, opacity: 0.4,
+    depthWrite: false
+  });
+  const dust = new THREE.Points(dGeo, dMat);
+  scene.add(dust);
+
+  /* ---- connecting line constellation ---- */
+  const LINK_DIST = 8.5;
+  const MAX_LINES = COUNT * 5;
+  const linePos = new Float32Array(MAX_LINES*6);
+  const lineGeo = new THREE.BufferGeometry();
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePos,3));
+  const lineMat = new THREE.LineBasicMaterial({
+    color: 0x6b8cff, transparent: true, opacity: 0.14, blending: THREE.AdditiveBlending
+  });
+  const lines = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(lines);
+
+  /* ---- interaction ---- */
+  let mouseX=0, mouseY=0, scrollY=0;
+  window.addEventListener('mousemove', e=>{
+    mouseX = (e.clientX/window.innerWidth - 0.5);
+    mouseY = (e.clientY/window.innerHeight - 0.5);
+  });
+  window.addEventListener('scroll', ()=>{ scrollY = window.scrollY; });
+
+  window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  function drift(arr, attr){
+    for(let i=0;i<arr.length;i++){
+      const p = arr[i];
+      p.x+=p.vx; p.y+=p.vy; p.z+=p.vz;
+      if(p.x>FIELD.x/2||p.x<-FIELD.x/2) p.vx*=-1;
+      if(p.y>FIELD.y/2||p.y<-FIELD.y/2) p.vy*=-1;
+      if(p.z>FIELD.z/2||p.z<-FIELD.z/2) p.vz*=-1;
+      attr.array[i*3]=p.x; attr.array[i*3+1]=p.y; attr.array[i*3+2]=p.z;
+    }
+    attr.needsUpdate = true;
+  }
+
+  function animate(){
+    requestAnimationFrame(animate);
+
+    drift(data, pGeo.attributes.position);
+    drift(accData, aGeo.attributes.position);
+
+    /* rebuild constellation links */
+    let li = 0;
+    for(let i=0;i<COUNT && li<MAX_LINES;i++){
+      const a = data[i];
+      for(let j=i+1;j<COUNT && li<MAX_LINES;j++){
+        const b = data[j];
+        const dx=a.x-b.x, dy=a.y-b.y, dz=a.z-b.z;
+        const dist = Math.sqrt(dx*dx+dy*dy+dz*dz);
+        if(dist<LINK_DIST){
+          linePos[li*6]=a.x;   linePos[li*6+1]=a.y;   linePos[li*6+2]=a.z;
+          linePos[li*6+3]=b.x; linePos[li*6+4]=b.y;   linePos[li*6+5]=b.z;
+          li++;
+        }
+      }
+    }
+    lineGeo.setDrawRange(0, li*2);
+    lineGeo.attributes.position.needsUpdate = true;
+
+    dust.rotation.y += 0.0003;
+    dust.rotation.x += 0.00015;
+    points.rotation.y += 0.0004;
+    accent.rotation.y += 0.0004;
+    lines.rotation.y  += 0.0004;
+
+    /* gentle parallax */
+    camera.position.x += (mouseX*5 - camera.position.x) * 0.025;
+    camera.position.y += (-mouseY*3.5 - (scrollY*0.004) - camera.position.y) * 0.025;
+    camera.lookAt(0,0,0);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+</script>
+</body>
+</html>
