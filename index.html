@@ -259,8 +259,9 @@
     display: flex; align-items: flex-end; justify-content: center;
   }
   .about-photo img {
-    width: 100%; height: 100%; object-fit: cover; object-position: top center;
+    width: 100%; height: 100%; object-fit: contain; object-position: bottom center;
     display: block;
+    filter: drop-shadow(0 12px 30px rgba(0,0,0,0.45));
   }
   /* placeholder shown until the user drops in their PNG */
   .about-photo .photo-placeholder {
@@ -276,7 +277,7 @@
   .about-photo::after {
     content:''; position: absolute; inset: 0; pointer-events: none;
     border-radius: 22px;
-    box-shadow: inset 0 -90px 70px -50px rgba(5,6,10,0.9);
+    box-shadow: inset 0 -50px 50px -45px rgba(5,6,10,0.7);
   }
   .about-card {
     position: relative; border-radius: 22px; padding: 1px;
@@ -730,15 +731,8 @@
     <h2 class="sec-title" data-en="Software and hardware, by the same hand." data-es="Software y hardware, de la misma mano.">Software and hardware, by the same hand.</h2>
   </div>
   <div class="about-grid">
-    <!--
-      ┌─────────────────────────────────────────────────────────────┐
-      │  FOTO: reemplazá el bloque .photo-placeholder de abajo por:   │
-      │  <img src="assets/lautaro.png" alt="Lautaro N. Benitez" />    │
-      │  Recomendado: PNG sin fondo, vertical, ~900x1200px            │
-      └─────────────────────────────────────────────────────────────┘
-    -->
     <div class="about-photo reveal">
-      <img src="https://github.com/Lautaro-Benitez/Lautaro-Benitez.github.io/blob/main/assets/lautaro.png" alt="Lautaro N. Benitez"/> 
+      <img src="assets/lautaro.png" alt="Lautaro N. Benitez" loading="lazy" />
     </div>
     <div class="about-text reveal reveal-d1">
       <p data-en="I'm a <strong>Full Stack Developer</strong> and a <strong>Mechatronics Engineer</strong> — and I don't see those as separate careers. Over 5+ years I've taken products from a relational schema and a cloud deploy all the way down to a PCB layout and the firmware running on it."
@@ -931,7 +925,7 @@
       </div>
       <div class="pmedia">
         <div class="pstatus"><span class="live"></span><span data-en="In production" data-es="En producción">In production</span></div>
-        <!-- SCREENSHOT Cupofy: reemplazá .shot-placeholder por <img src="assets/cupofy.png" alt="Cupofy" /> -->
+        <!-- SCREENSHOT Cupofy: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
         <div class="pshot">
           <div class="shot-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -959,7 +953,7 @@
       </div>
       <div class="pmedia">
         <div class="pstatus"><span class="live"></span><span data-en="1+ yr live" data-es="1+ año en uso">1+ yr live</span></div>
-        <!-- SCREENSHOT Travel Log PWA: reemplazá .shot-placeholder por <img src="assets/travel-log-pwa.png" alt="Travel Log PWA" /> -->
+        <!-- SCREENSHOT Travel Log PWA: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
         <div class="pshot">
           <div class="shot-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -987,7 +981,7 @@
       </div>
       <div class="pmedia">
         <div class="pstatus"><span data-en="Full stack" data-es="Full stack">Full stack</span></div>
-        <!-- SCREENSHOT Industrial AR App: reemplazá .shot-placeholder por <img src="assets/industrial-ar-app.png" alt="Industrial AR App" /> -->
+        <!-- SCREENSHOT Industrial AR App: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
         <div class="pshot">
           <div class="shot-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -1015,7 +1009,7 @@
       </div>
       <div class="pmedia">
         <div class="pstatus"><span data-en="National league" data-es="Liga nacional">National league</span></div>
-        <!-- SCREENSHOT Line-Following Robot: reemplazá .shot-placeholder por <img src="assets/line-following-robot.png" alt="Line-Following Robot" /> -->
+        <!-- SCREENSHOT Line-Following Robot: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
         <div class="pshot">
           <div class="shot-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -1043,7 +1037,7 @@
       </div>
       <div class="pmedia">
         <div class="pstatus"><span data-en="Hardware build" data-es="Hardware">Hardware build</span></div>
-        <!-- SCREENSHOT STM32 MIDI Controller: reemplazá .shot-placeholder por <img src="assets/stm32-midi-controller.png" alt="STM32 MIDI Controller" /> -->
+        <!-- SCREENSHOT STM32 MIDI Controller: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
         <div class="pshot">
           <div class="shot-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
@@ -1071,7 +1065,7 @@
       </div>
       <div class="pmedia">
         <div class="pstatus"><span data-en="Aerospace" data-es="Aeroespacial">Aerospace</span></div>
-        <!-- SCREENSHOT MendoSAT: reemplazá .shot-placeholder por <img src="assets/mendosat.png" alt="MendoSAT" /> -->
+        <!-- SCREENSHOT MendoSAT: reemplazar el div.shot-placeholder por una etiqueta img. Ver LEEME.txt. -->
         <div class="pshot">
           <div class="shot-placeholder">
             <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
