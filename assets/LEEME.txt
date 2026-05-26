@@ -1,0 +1,34 @@
+ASSETS — Portfolio Lautaro N. Benitez
+======================================
+
+ARCHIVOS QUE YA ESTÁN (CVs):
+  - CV_Engineer_LautaroBenitez_EN.pdf      -> se descarga con el sitio en inglés
+  - CV_Ingeniero_LautaroBenitez_ES.pdf     -> se descarga con el sitio en español
+  - CV_FullStackDeveloper_LautaroBenitez_EN.pdf  (extra, no enlazado)
+  - CV_DesarrolladorFullStack_LautaroBenitez_ES.pdf  (extra, no enlazado)
+
+ARCHIVOS QUE TENÉS QUE AGREGAR:
+
+1) TU FOTO  ->  assets/lautaro.png
+   - PNG sin fondo, vertical, ~900x1200 px
+   - En index.html buscá el comentario "FOTO:" dentro de la sección About
+     y reemplazá el bloque <div class="photo-placeholder">...</div> por:
+       <img src="assets/lautaro.png" alt="Lautaro N. Benitez" />
+
+2) SCREENSHOTS DE PROYECTOS (uno por proyecto):
+   - assets/cupofy.png
+   - assets/travel-log-pwa.png
+   - assets/industrial-ar-app.png
+   - assets/line-following-robot.png
+   - assets/stm32-midi-controller.png
+   - assets/mendosat.png
+   - Recomendado: 16:10, ~1280x800 px
+   - En index.html buscá cada comentario "SCREENSHOT <nombre>:" y reemplazá
+     el bloque <div class="shot-placeholder">...</div> por:
+       <img src="assets/<archivo>.png" alt="<nombre>" />
+
+3) LINKS DE GITHUB POR PROYECTO:
+   - Buscá los comentarios "REEMPLAZAR href..." y poné la URL real de cada repo.
+   - Si un proyecto no tiene repo público, borrá su bloque <div class="plinks">.
+
+Para publicar: subí TODA la carpeta (index.html + assets/) a tu hosting.
